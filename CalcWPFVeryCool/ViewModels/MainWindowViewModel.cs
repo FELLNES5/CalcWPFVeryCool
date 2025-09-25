@@ -1,6 +1,5 @@
 ﻿using CalcWPFVeryCool.Base;
 using System;
-using System.Linq;
 using System.Windows.Input;
 
 namespace CalcWPFVeryCool.ViewModels
@@ -18,7 +17,7 @@ namespace CalcWPFVeryCool.ViewModels
 
         public MainWindowViewModel()
         {
-            //numbers
+            // Numbers
             ZeroButtonCommand = new RelayCommand(ZeroButton);
             OneButtonCommand = new RelayCommand(OneButton);
             TwoButtonCommand = new RelayCommand(TwoButton);
@@ -29,7 +28,7 @@ namespace CalcWPFVeryCool.ViewModels
             SevenButtonCommand = new RelayCommand(SevenButton);
             EightButtonCommand = new RelayCommand(EightButton);
             NineButtonCommand = new RelayCommand(NineButton);
-            //operations
+            // Operations
             PlusButtonCommand = new RelayCommand(PlusButton);
             MinusButtonCommand = new RelayCommand(MinusButton);
             MultiplyButtonCommand = new RelayCommand(MultiplyButton);
@@ -71,10 +70,10 @@ namespace CalcWPFVeryCool.ViewModels
         #endregion
 
 
-        //основная логика
+        // Основная логика
         private string GetAction(string Val)
         {
-            //ввод цифр
+            // Ввод цифр
             if (char.IsDigit(Val[0]) && Val.Length == 1)
             {
                 if (_justCalculated)
@@ -88,7 +87,7 @@ namespace CalcWPFVeryCool.ViewModels
                 }
                 return Output + Val;
             }
-            //вычисление
+            // Вычисление
             else if (Val == "=")
             {
                 if (!_isSecondNumber && _operation == ' ')
@@ -97,38 +96,48 @@ namespace CalcWPFVeryCool.ViewModels
                 }
                 else return GetResult();
             }
-            //ввод операции
+
+            // Ввод операции
             else if (Val == "+" || Val == "-" || Val == "*" || Val == "/")
             {
+                // Если это первый ввод операции - сохраняем первое число и операцию
                 if (!_isSecondNumber)
                 {
                     _num1 = Convert.ToSingle(Output);
                     _operation = Val[0];
                     _isSecondNumber = true;
                     _justCalculated = false;
+                    SecondOutput = $"{_num1} {_operation}";
                     return _num1.ToString();
                 }
+
+                // Если операция вводится после второго числа - вычисляем, сохраняем результат и новую операцию
                 else
                 {
-                    _num1 = float.Parse(GetResult());
+                    GetResult();
                     _operation = Val[0];
                     _isSecondNumber = true;
                     _justCalculated = false;
+                    SecondOutput = $"{_num1} {_operation}";
                     return _num1.ToString();
                 }
+
             }
-            //очистка
+
+            // Очистка всего
             else if (Val == "C")
             {
                 ResetCalculator();
                 return "0";
             }
-            //очистка нынешнего числа
+
+            // Очистка нынешнего числа (главного вывода)
             else if (Val == "CE")
             {
                 return "0";
             }
-            //смена знака
+
+            // Смена знака
             else if (Val == "+/-")
             {
 
@@ -140,7 +149,8 @@ namespace CalcWPFVeryCool.ViewModels
 
                 return "-" + Output;
             }
-            //удаление символа
+
+            // Удаление символа
             else if (Val == "<")
             {
                 if (_justCalculated)
@@ -155,7 +165,8 @@ namespace CalcWPFVeryCool.ViewModels
 
                 return s.Substring(0, s.Length - 1);
             }
-            //уствновка точки
+
+            // Уствновка точки
             else if (Val == ".")
             {
                 if (_justCalculated) return "0.";
@@ -164,20 +175,8 @@ namespace CalcWPFVeryCool.ViewModels
             }
             return "0";
         }
-        //завершающие действия с дополнительным полем и возврат вычисления
-        private string GetFinalValue(string inputVal)
-        {
-            var result = GetAction(inputVal.ToString());
-            if (_isSecondNumber)
-            {
-                SecondOutput = $"{_num1} {_operation}";
-                if (_justCalculated) SecondOutput = $"{_num1} {_operation} {_num2} =";
-            }
-            else
-            SecondOutput = string.Empty;
-            return result.ToString();
-        }
-        //метод сброса
+
+        // Метод сброса
         private void ResetCalculator()
         {
             _num1 = 0;
@@ -188,6 +187,7 @@ namespace CalcWPFVeryCool.ViewModels
             SecondOutput = string.Empty;
         }
 
+        // Главное окно вывода
         public string Output
         {
             get { return _outputText; }
@@ -197,6 +197,8 @@ namespace CalcWPFVeryCool.ViewModels
                 OnPropertyChanged(nameof(Output));
             }
         }
+
+        // Дополнительное окно вывода
         public string SecondOutput
         {
             get { return _outputTextSecond; }
@@ -229,6 +231,8 @@ namespace CalcWPFVeryCool.ViewModels
             }
             return _num1 / _num2;
         }
+
+        // Получение результата, сохранение его в первое число и возврат
         private string GetResult()
         {
             if (_isSecondNumber)
@@ -250,36 +254,35 @@ namespace CalcWPFVeryCool.ViewModels
                     _output = Divide();
                     break;
             }
-
+            SecondOutput = $"{_num1} {_operation} {_num2} =";
             _num1 = _output;
             _justCalculated = true;
             _isSecondNumber = false;
-            //SecondaryOutput.Text = string.Empty;
             return _output.ToString();
         }
         #endregion
 
         #region UIEvents
-        private void ZeroButton(object obj) => Output = GetFinalValue("0");
-        private void OneButton(object obj) => Output = GetFinalValue("1");
-        private void TwoButton(object obj) => Output = GetFinalValue("2");
-        private void ThreeButton(object obj) => Output = GetFinalValue("3");
-        private void FourButton(object obj) => Output = GetFinalValue("4");
-        private void FiveButton(object obj) => Output = GetFinalValue("5");
-        private void SixButton(object obj) => Output = GetFinalValue("6");
-        private void SevenButton(object obj) => Output = GetFinalValue("7");
-        private void EightButton(object obj) => Output = GetFinalValue("8");
-        private void NineButton(object obj) => Output = GetFinalValue("9");
-        private void PlusButton(object obj) => Output = GetFinalValue("+");
-        private void MinusButton(object obj) => Output = GetFinalValue("-");
-        private void MultiplyButton(object obj) => Output = GetFinalValue("*");
-        private void DivideButton(object obj) => Output = GetFinalValue("/");
-        private void EqualsButton(object obj) => Output = GetFinalValue("=");
-        private void CButton(object obj) => Output = GetFinalValue("C");
-        private void CEButton(object obj) => Output = GetFinalValue("CE");
-        private void NegativeButton(object obj) => Output = GetFinalValue("+/-");
-        private void DelButton(object obj) => Output = GetFinalValue("<");
-        private void DotButton(object obj) => Output = GetFinalValue(".");
+        private void ZeroButton(object obj) => Output = GetAction("0");
+        private void OneButton(object obj) => Output = GetAction("1");
+        private void TwoButton(object obj) => Output = GetAction("2");
+        private void ThreeButton(object obj) => Output = GetAction("3");
+        private void FourButton(object obj) => Output = GetAction("4");
+        private void FiveButton(object obj) => Output = GetAction("5");
+        private void SixButton(object obj) => Output = GetAction("6");
+        private void SevenButton(object obj) => Output = GetAction("7");
+        private void EightButton(object obj) => Output = GetAction("8");
+        private void NineButton(object obj) => Output = GetAction("9");
+        private void PlusButton(object obj) => Output = GetAction("+");
+        private void MinusButton(object obj) => Output = GetAction("-");
+        private void MultiplyButton(object obj) => Output = GetAction("*");
+        private void DivideButton(object obj) => Output = GetAction("/");
+        private void EqualsButton(object obj) => Output = GetAction("=");
+        private void CButton(object obj) => Output = GetAction("C");
+        private void CEButton(object obj) => Output = GetAction("CE");
+        private void NegativeButton(object obj) => Output = GetAction("+/-");
+        private void DelButton(object obj) => Output = GetAction("<");
+        private void DotButton(object obj) => Output = GetAction(".");
         #endregion
 
     }
