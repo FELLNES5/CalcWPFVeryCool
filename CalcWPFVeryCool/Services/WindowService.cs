@@ -5,31 +5,30 @@ using System.Linq;
 
 namespace CalcWPFVeryCool.Services
 {
-    // Сервис истории, реализуем через одиночку: ОДИН КЛАСС - ОДИН ЭКЗЕМПЛЯР.
+    // Сервис смены окон, реализуем через одиночку: ОДИН КЛАСС - ОДИН ЭКЗЕМПЛЯР.
     // Тип - строка
     // Хранение - коллекция строк
-    // Изначально берем финальный результат SecondOutput
-    class HistoryService
+    class WindowService
     {
 
         // Статическая переменная - ссылка на конкретный экземпляр данного объекта
-        private static HistoryService _instance;
+        private static WindowService _instance;
 
         // Статическое свойство - точка доступа к экземпляру класса, как с Output
-        public static HistoryService Instance
+        public static WindowService Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new HistoryService();
+                    _instance = new WindowService();
                 }
                 return _instance;
             }
         }
 
         // Приватный конструктор, чтобы нельзя было создать объект извне
-        private HistoryService()
+        private WindowService()
         { }
 
     }

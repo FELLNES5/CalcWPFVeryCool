@@ -3,11 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CalcWPFVeryCool.Converters"
         mc:Ignorable="d"
         Title="Genshin Impact" Height="425" Width="300">
     <Grid>
         <!--создаем базовую сетку-->
         <Grid.RowDefinitions>
+            <RowDefinition />
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
@@ -22,9 +24,19 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-
+        <!--кнопка истории-->
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Button Content="🕘" Margin="0,1,1,0" Grid.Column="4"/>
+        </Grid>
         <!--Текстовые элементы для вывода-->
-        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="2">
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -42,7 +54,7 @@
         </Grid>
         <!--ряды цифр и операций-->
         <!--доп гридом сокращаем "количество привязок" к базовому гриду + теперь хорошо масштабируется-->
-        <Grid Grid.Row="2" Grid.ColumnSpan="4" Grid.Column="0">
+        <Grid Grid.Row="3" Grid.ColumnSpan="4" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -56,7 +68,7 @@
             <Button Content="CE" Grid.Column="0" Margin="5,2,1,2" Command="{Binding CEButtonCommand}"/>
         </Grid>
 
-        <Grid Grid.Column="0"  Grid.Row="3" Grid.ColumnSpan="4">
+        <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -69,7 +81,7 @@
             <Button Content="×" Grid.Column="3" Margin="1,2,5,2" Command="{Binding MultiplyButtonCommand}"/>
         </Grid>
 
-        <Grid Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4">
+        <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -82,7 +94,7 @@
             <Button Content="-" Grid.Column="3" Margin="1,2,5,2" Command="{Binding MinusButtonCommand}"/>
         </Grid>
 
-        <Grid Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="4">
+        <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -95,7 +107,7 @@
             <Button Content="+" Grid.Column="3" Margin="1,2,5,2" Command="{Binding PlusButtonCommand}"/>
         </Grid>
 
-        <Grid Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="4">
+        <Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
