@@ -15,6 +15,5 @@ namespace CalcWPFVeryCool.Views
             InitializeComponent();
             DataContext = new MainWindowViewModel();
         }
-
     }
 }

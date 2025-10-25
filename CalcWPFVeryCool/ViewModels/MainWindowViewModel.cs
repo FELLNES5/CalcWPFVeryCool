@@ -1,6 +1,9 @@
 ﻿using CalcWPFVeryCool.Base;
 using System;
 using System.Windows.Input;
+using CalcWPFVeryCool.Services;
+using CalcWPFVeryCool.Models;
+using CalcWPFVeryCool.Dto;
 
 namespace CalcWPFVeryCool.ViewModels
 {
@@ -9,14 +12,15 @@ namespace CalcWPFVeryCool.ViewModels
         private float _num1;
         private float _num2;
         private char _operation = ' ';
-        private float _output;
-        private string _outputText;
+        private string _outputText = "0";
         private string _outputTextSecond;
         private bool _justCalculated = false;
         private bool _isSecondNumber = false;
-
+        private bool _historyVisible = false;
+        private HistoryModel _model;
         public MainWindowViewModel()
         {
+            #region ButtonInit
             // Numbers
             ZeroButtonCommand = new RelayCommand(ZeroButton);
             OneButtonCommand = new RelayCommand(OneButton);
@@ -39,7 +43,9 @@ namespace CalcWPFVeryCool.ViewModels
             NegativeButtonCommand = new RelayCommand(NegativeButton);
             DelButtonCommand = new RelayCommand(DelButton);
             DotButtonCommand = new RelayCommand(DotButton);
-            Output = "0";
+
+            HistoryToggleCommand = new RelayCommand(HistoryToggle);
+            #endregion
         }
 
         #region NumCommands
@@ -69,6 +75,7 @@ namespace CalcWPFVeryCool.ViewModels
         public ICommand DotButtonCommand { get; }
         #endregion
 
+        public ICommand HistoryToggleCommand { get; }
 
         // Основная логика
         private string GetAction(string Val)
@@ -87,49 +94,6 @@ namespace CalcWPFVeryCool.ViewModels
                 }
                 return Output + Val;
             }
-            // Вычисление
-            else if (Val == "=")
-            {
-                if (!_isSecondNumber && _operation == ' ')
-                {
-                    return Output;
-                }
-                else return GetResult();
-            }
-
-            // Ввод операции
-            else if (Val == "+" || Val == "-" || Val == "*" || Val == "/")
-            {
-                // Если это первый ввод операции - сохраняем первое число и операцию
-                if (!_isSecondNumber)
-                {
-                    _num1 = Convert.ToSingle(Output);
-                    _operation = Val[0];
-                    _isSecondNumber = true;
-                    _justCalculated = false;
-                    SecondOutput = $"{_num1} {_operation}";
-                    return _num1.ToString();
-                }
-
-                // Если операция вводится после второго числа - вычисляем, сохраняем результат и новую операцию
-                else
-                {
-                    GetResult();
-                    _operation = Val[0];
-                    _isSecondNumber = true;
-                    _justCalculated = false;
-                    SecondOutput = $"{_num1} {_operation}";
-                    return _num1.ToString();
-                }
-
-            }
-
-            // Очистка всего
-            else if (Val == "C")
-            {
-                ResetCalculator();
-                return "0";
-            }
 
             // Очистка нынешнего числа (главного вывода)
             else if (Val == "CE")
@@ -144,7 +108,7 @@ namespace CalcWPFVeryCool.ViewModels
                 if (Output == "0")
                     return "0";
 
-                if (Output.StartsWith("-"))
+                if (Output.StartsWith('-'))
                     return Output.Substring(1);
 
                 return "-" + Output;
@@ -164,20 +128,12 @@ namespace CalcWPFVeryCool.ViewModels
                     return "0";
 
                 return s.Substring(0, s.Length - 1);
-            }
-
-            // Уствновка точки
-            else if (Val == ".")
-            {
-                if (_justCalculated) return "0.";
-                if (Output.Contains(".")) return Output;
-                return Output += ".";
-            }
+            }            
             return "0";
         }
 
         // Метод сброса
-        private void ResetCalculator()
+        private string ResetCalculator()
         {
             _num1 = 0;
             _num2 = 0;
@@ -185,8 +141,9 @@ namespace CalcWPFVeryCool.ViewModels
             _justCalculated = false;
             _isSecondNumber = false;
             SecondOutput = string.Empty;
+            return "0";
         }
-
+        
         // Главное окно вывода
         public string Output
         {
@@ -197,7 +154,7 @@ namespace CalcWPFVeryCool.ViewModels
                 OnPropertyChanged(nameof(Output));
             }
         }
-
+        
         // Дополнительное окно вывода
         public string SecondOutput
         {
@@ -208,9 +165,62 @@ namespace CalcWPFVeryCool.ViewModels
                 OnPropertyChanged(nameof(SecondOutput));
             }
         }
+        
+        // Показ ListBox истории
+        public bool HistoryVisible
+        {
+            get { return _historyVisible; }
+            set
+            {
+                if (_historyVisible != value)
+                { 
+                    _historyVisible = value;
+                    OnPropertyChanged(nameof(HistoryVisible));
+                }
+            }
+        }
+        
+        // Коллекция истории
+        public HistoryModel Model
+            {
+            get { return _model; }
+            set
+            {
+                if (_model != value)
+                {
+                    _model = value;
+                    OnPropertyChanged(nameof(Model));
+                }
+            }
+        }
 
 
         #region MathOperations
+
+        // Ввод операции
+        public string SetOperation(string operation)
+        {
+            // Если это первый ввод операции - сохраняем первое число и операцию
+            if (!_isSecondNumber)
+            {
+                _num1 = Convert.ToSingle(Output);
+                _operation = operation[0];
+                _isSecondNumber = true;
+                _justCalculated = false;
+                SecondOutput = $"{_num1} {_operation}";
+                return _num1.ToString();
+            }
+            // Если операция вводится после второго числа - вычисляем, сохраняем результат и новую операцию
+            else
+            {
+                GetResult();
+                _operation = operation[0];
+                _isSecondNumber = true;
+                _justCalculated = false;
+                SecondOutput = $"{_num1} {_operation}";
+                return _num1.ToString();
+            }
+        }
         private float Add()
         {
             return _num1 + _num2;
@@ -235,31 +245,44 @@ namespace CalcWPFVeryCool.ViewModels
         // Получение результата, сохранение его в первое число и возврат
         private string GetResult()
         {
-            if (_isSecondNumber)
+            if (!_isSecondNumber && _operation == ' ') return Output;
+            if (_isSecondNumber & _operation != ' ')
             {
                 _num2 = Convert.ToSingle(Output);
             }
             switch (_operation)
             {
                 case '+':
-                    _output = Add();
+                    _num1 = Add();
                     break;
                 case '-':
-                    _output = Substract();
+                    _num1 = Substract();
                     break;
                 case '*':
-                    _output = Multiply();
+                    _num1 = Multiply();
                     break;
                 case '/':
-                    _output = Divide();
+                    _num1 = Divide();
                     break;
+                default: return Output;
             }
             SecondOutput = $"{_num1} {_operation} {_num2} =";
-            _num1 = _output;
             _justCalculated = true;
             _isSecondNumber = false;
-            return _output.ToString();
+            HistoryService.Instance.AddHistoryItem(new HistoryItemDto
+            {
+                SecondOutput = SecondOutput,
+                OutputText = Output
+            });
+            return _num1.ToString();
         }
+        private string GetDot()
+        {
+            if (_justCalculated) return "0.";
+            if (Output.Contains(".")) return Output;
+            return Output += ".";
+        }
+
         #endregion
 
         #region UIEvents
@@ -273,17 +296,21 @@ namespace CalcWPFVeryCool.ViewModels
         private void SevenButton(object obj) => Output = GetAction("7");
         private void EightButton(object obj) => Output = GetAction("8");
         private void NineButton(object obj) => Output = GetAction("9");
-        private void PlusButton(object obj) => Output = GetAction("+");
-        private void MinusButton(object obj) => Output = GetAction("-");
-        private void MultiplyButton(object obj) => Output = GetAction("*");
-        private void DivideButton(object obj) => Output = GetAction("/");
-        private void EqualsButton(object obj) => Output = GetAction("=");
-        private void CButton(object obj) => Output = GetAction("C");
+        private void PlusButton(object obj) => Output = SetOperation("+");
+        private void MinusButton(object obj) => Output = SetOperation("-");
+        private void MultiplyButton(object obj) => Output = SetOperation("*");
+        private void DivideButton(object obj) => Output = SetOperation("/");
+        private void EqualsButton(object obj) => Output = GetResult();
+        private void CButton(object obj) => Output = ResetCalculator();
         private void CEButton(object obj) => Output = GetAction("CE");
         private void NegativeButton(object obj) => Output = GetAction("+/-");
         private void DelButton(object obj) => Output = GetAction("<");
-        private void DotButton(object obj) => Output = GetAction(".");
+        private void DotButton(object obj) => Output = GetDot();
+        private void HistoryToggle(object obj)
+        {
+            Model = HistoryService.Instance.GetHistoryItems();
+            HistoryVisible = !HistoryVisible;
+        }
         #endregion
-
     }
 }

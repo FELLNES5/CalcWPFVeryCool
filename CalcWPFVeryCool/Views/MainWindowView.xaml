@@ -3,9 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CalcWPFVeryCool.Converters"
+        xmlns:converters="clr-namespace:CalcWPFVeryCool.Converters"
+        xmlns:viewmodels="clr-namespace:CalcWPFVeryCool.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="Genshin Impact" Height="425" Width="300">
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Window.Resources>
     <Grid>
         <!--создаем базовую сетку-->
         <Grid.RowDefinitions>
@@ -33,7 +38,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button Content="🕘" Margin="0,1,1,0" Grid.Column="4"/>
+            <Button Content="🕘" Margin="1" Grid.Column="4" BorderThickness="0" Background="LightGray" Command="{Binding HistoryToggleCommand}" Width="30" Height="30"/>
         </Grid>
         <!--Текстовые элементы для вывода-->
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="2">
@@ -50,10 +55,10 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <TextBlock Text="{Binding SecondOutput}" FontSize="16" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,0" TextAlignment="Right"/>
-            <TextBox Text="{Binding Output}" FontSize="36" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,5" TextAlignment="Right" BorderThickness="0" Background="LightGray" IsReadOnly="True"/>
+            <TextBox Text="{Binding Output}" FontSize="40" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,0" TextAlignment="Right" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
         </Grid>
         <!--ряды цифр и операций-->
-        <!--доп гридом сокращаем "количество привязок" к базовому гриду + теперь хорошо масштабируется-->
+        <!--доп гридом сокращаем "количество привязок" к базовому гриду + теперь хорошо масштабируется окно-->
         <Grid Grid.Row="3" Grid.ColumnSpan="4" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -61,7 +66,6 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <!--на  ViewModel ввсегда привязка - Binding!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
             <Button Content="÷" Grid.Column="3" Margin="1,2,5,2" Command="{Binding DivideButtonCommand}"/>
             <Button Content="&lt;" Grid.Column="2" Margin="2,2,3,2" Command="{Binding DelButtonCommand}"/>
             <Button Content="C"  Grid.Column="1" Margin="2,2,2,2" Command="{Binding CButtonCommand}"/>
@@ -118,6 +122,34 @@
             <Button Content="0" Grid.Column="1" Margin="3,2,2,2" Command="{Binding ZeroButtonCommand}"/>
             <Button Content="." Grid.Column="2" Margin="2,2,3,2" Command="{Binding DotButtonCommand}"/>
             <Button Content="=" Grid.Column="3" Margin="1,2,5,2" Command="{Binding EqualsButtonCommand}"/>
+        </Grid>
+        
+        <!--история-->
+        <Grid Grid.Row ="1" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="7" Visibility="{Binding HistoryVisible, Converter={StaticResource BoolToVisibilityConverter}}" Panel.ZIndex="2">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.RowSpan="2" Opacity="0.5" Background="Gray">
+                <Grid.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding HistoryToggleCommand}"/>
+                </Grid.InputBindings>
+            </Grid>
+            <Grid Grid.Row="2" Grid.RowSpan="5">
+                <ListView ItemsSource="{Binding Model.HistoryItems}" ScrollViewer.CanContentScroll="True">
+                    <ListView.ItemTemplate>
+                        <!--DataTemplate - шаблон данных. Обращается только к свойствам объектов-->
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Body}" FontSize="14" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
