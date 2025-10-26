@@ -77,59 +77,20 @@ namespace CalcWPFVeryCool.ViewModels
 
         public ICommand HistoryToggleCommand { get; }
 
-        // Основная логика
-        private string GetAction(string Val)
+        // Получение цифр
+        private string GetNumber(string Val)
         {
             // Ввод цифр
-            if (char.IsDigit(Val[0]) && Val.Length == 1)
+            if (_justCalculated)
             {
-                if (_justCalculated)
-                {
-                    ResetCalculator();
-                    return Val;
-                }
-                if (Output == "0" || (_isSecondNumber && Output == _num1.ToString()))
-                {
-                    return Val;
-                }
-                return Output + Val;
+                ResetCalculator();
+                return Val;
             }
-
-            // Очистка нынешнего числа (главного вывода)
-            else if (Val == "CE")
+            if (Output == "0" || (_isSecondNumber && Output == _num1.ToString()))
             {
-                return "0";
+                return Val;
             }
-
-            // Смена знака
-            else if (Val == "+/-")
-            {
-
-                if (Output == "0")
-                    return "0";
-
-                if (Output.StartsWith('-'))
-                    return Output.Substring(1);
-
-                return "-" + Output;
-            }
-
-            // Удаление символа
-            else if (Val == "<")
-            {
-                if (_justCalculated)
-                {
-                    ResetCalculator();
-                    return "0";
-                }
-
-                var s = Output;
-                if (string.IsNullOrEmpty(s) || s.Length == 1 || (s.Length == 2 && s.StartsWith('-')))
-                    return "0";
-
-                return s.Substring(0, s.Length - 1);
-            }            
-            return "0";
+            return Output + Val;           
         }
 
         // Метод сброса
@@ -194,7 +155,6 @@ namespace CalcWPFVeryCool.ViewModels
             }
         }
 
-
         #region MathOperations
 
         // Ввод операции
@@ -213,7 +173,7 @@ namespace CalcWPFVeryCool.ViewModels
         // Получение результата, сохранение его в первое число и возврат
         private string GetResult()
         {
-            if (!_isSecondNumber && _operation == ' ') return Output;
+            if (_operation == ' ') return Output;
             if (_isSecondNumber)
             {
                 _num2 = Convert.ToDecimal(Output);
@@ -258,33 +218,56 @@ namespace CalcWPFVeryCool.ViewModels
         }
         private string GetDot()
         {
-            if (_justCalculated || _isSecondNumber) return "0.";
+            if (_justCalculated || (_isSecondNumber && Output == _num1.ToString())) return "0.";
             if (Output.Contains('.')) return Output;
             return Output + ".";
+        }
+        private string ClearElement()
+        {
+            return "0";
+        }
+        private string DenialElement()
+        {
+            if (Output == "0") return "0";
+            if (Output.StartsWith('-'))
+                return Output.Substring(1);
+            return "-" + Output;
+        }
+        private string DeleteSymbol()
+        {
+            if (_justCalculated)
+            {
+                ResetCalculator();
+                return "0";
+            }
+            var s = Output;
+            if (string.IsNullOrEmpty(s) || s.Length == 1 || (s.Length == 2 && s.StartsWith('-')))
+                return "0";
+            return s.Substring(0, s.Length - 1);
         }
 
         #endregion
 
         #region UIEvents
-        private void ZeroButton(object obj) => Output = GetAction("0");
-        private void OneButton(object obj) => Output = GetAction("1");
-        private void TwoButton(object obj) => Output = GetAction("2");
-        private void ThreeButton(object obj) => Output = GetAction("3");
-        private void FourButton(object obj) => Output = GetAction("4");
-        private void FiveButton(object obj) => Output = GetAction("5");
-        private void SixButton(object obj) => Output = GetAction("6");
-        private void SevenButton(object obj) => Output = GetAction("7");
-        private void EightButton(object obj) => Output = GetAction("8");
-        private void NineButton(object obj) => Output = GetAction("9");
+        private void ZeroButton(object obj) => Output = GetNumber("0");
+        private void OneButton(object obj) => Output = GetNumber("1");
+        private void TwoButton(object obj) => Output = GetNumber("2");
+        private void ThreeButton(object obj) => Output = GetNumber("3");
+        private void FourButton(object obj) => Output = GetNumber("4");
+        private void FiveButton(object obj) => Output = GetNumber("5");
+        private void SixButton(object obj) => Output = GetNumber("6");
+        private void SevenButton(object obj) => Output = GetNumber("7");
+        private void EightButton(object obj) => Output = GetNumber("8");
+        private void NineButton(object obj) => Output = GetNumber("9");
         private void PlusButton(object obj) => Output = SetOperation("+");
         private void MinusButton(object obj) => Output = SetOperation("-");
         private void MultiplyButton(object obj) => Output = SetOperation("*");
         private void DivideButton(object obj) => Output = SetOperation("/");
         private void EqualsButton(object obj) => GetResult();
         private void CButton(object obj) => Output = ResetCalculator();
-        private void CEButton(object obj) => Output = GetAction("CE");
-        private void NegativeButton(object obj) => Output = GetAction("+/-");
-        private void DelButton(object obj) => Output = GetAction("<");
+        private void CEButton(object obj) => Output = ClearElement();
+        private void NegativeButton(object obj) => Output = DenialElement();
+        private void DelButton(object obj) => Output = DeleteSymbol();
         private void DotButton(object obj) => Output = GetDot();
         private void HistoryToggle(object obj)
         {
