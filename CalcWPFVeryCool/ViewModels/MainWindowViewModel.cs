@@ -9,8 +9,8 @@ namespace CalcWPFVeryCool.ViewModels
 {
     class MainWindowViewModel : BaseViewModel
     {
-        private float _num1;
-        private float _num2;
+        private decimal _num1;
+        private decimal _num2;
         private char _operation = ' ';
         private string _outputText = "0";
         private string _outputTextSecond;
@@ -124,7 +124,7 @@ namespace CalcWPFVeryCool.ViewModels
                 }
 
                 var s = Output;
-                if (string.IsNullOrEmpty(s) || s.Length == 1 || (s.Length == 2 && s.StartsWith("-")))
+                if (string.IsNullOrEmpty(s) || s.Length == 1 || (s.Length == 2 && s.StartsWith('-')))
                     return "0";
 
                 return s.Substring(0, s.Length - 1);
@@ -166,7 +166,7 @@ namespace CalcWPFVeryCool.ViewModels
             }
         }
         
-        // Показ ListBox истории
+        // Переключение видимости истории
         public bool HistoryVisible
         {
             get { return _historyVisible; }
@@ -200,87 +200,67 @@ namespace CalcWPFVeryCool.ViewModels
         // Ввод операции
         public string SetOperation(string operation)
         {
-            // Если это первый ввод операции - сохраняем первое число и операцию
-            if (!_isSecondNumber)
-            {
-                _num1 = Convert.ToSingle(Output);
-                _operation = operation[0];
-                _isSecondNumber = true;
-                _justCalculated = false;
-                SecondOutput = $"{_num1} {_operation}";
-                return _num1.ToString();
-            }
-            // Если операция вводится после второго числа - вычисляем, сохраняем результат и новую операцию
-            else
-            {
-                GetResult();
-                _operation = operation[0];
-                _isSecondNumber = true;
-                _justCalculated = false;
-                SecondOutput = $"{_num1} {_operation}";
-                return _num1.ToString();
-            }
-        }
-        private float Add()
-        {
-            return _num1 + _num2;
-        }
-        private float Substract()
-        {
-            return _num1 - _num2;
-        }
-        private float Multiply()
-        {
-            return _num1 * _num2;
-        }
-        private float Divide()
-        {
-            if (_num2 == 0)
-            {
-                return _num1;
-            }
-            return _num1 / _num2;
+            if (_isSecondNumber) GetResult();
+
+            _num1 = Convert.ToDecimal(Output);
+            _operation = operation[0];
+            _isSecondNumber = true;
+            _justCalculated = false;
+            SecondOutput = $"{_num1} {_operation}";
+            return _num1.ToString();
         }
 
         // Получение результата, сохранение его в первое число и возврат
         private string GetResult()
         {
             if (!_isSecondNumber && _operation == ' ') return Output;
-            if (_isSecondNumber & _operation != ' ')
+            if (_isSecondNumber)
             {
-                _num2 = Convert.ToSingle(Output);
+                _num2 = Convert.ToDecimal(Output);
             }
+
+            SecondOutput = $"{_num1} {_operation} {_num2} =";
+
             switch (_operation)
             {
                 case '+':
-                    _num1 = Add();
+                    _num1 = _num1 + _num2;
                     break;
                 case '-':
-                    _num1 = Substract();
+                    _num1 = _num1 - _num2;
                     break;
                 case '*':
-                    _num1 = Multiply();
+                    _num1 = _num1 * _num2;
                     break;
                 case '/':
-                    _num1 = Divide();
+                    if (_num2 == 0)
+                    {
+                        Output = "На ноль делить нельзя";
+                        _justCalculated = true;
+                        _isSecondNumber = false;
+                        return Output;
+                    }
+                    _num1 = _num1 / _num2;
                     break;
-                default: return Output;
             }
-            SecondOutput = $"{_num1} {_operation} {_num2} =";
+
             _justCalculated = true;
             _isSecondNumber = false;
+
+            Output = _num1.ToString();
+
             HistoryService.Instance.AddHistoryItem(new HistoryItemDto
             {
                 SecondOutput = SecondOutput,
                 OutputText = Output
             });
-            return _num1.ToString();
+            return Output;
         }
         private string GetDot()
         {
-            if (_justCalculated) return "0.";
-            if (Output.Contains(".")) return Output;
-            return Output += ".";
+            if (_justCalculated || _isSecondNumber) return "0.";
+            if (Output.Contains('.')) return Output;
+            return Output + ".";
         }
 
         #endregion
@@ -300,7 +280,7 @@ namespace CalcWPFVeryCool.ViewModels
         private void MinusButton(object obj) => Output = SetOperation("-");
         private void MultiplyButton(object obj) => Output = SetOperation("*");
         private void DivideButton(object obj) => Output = SetOperation("/");
-        private void EqualsButton(object obj) => Output = GetResult();
+        private void EqualsButton(object obj) => GetResult();
         private void CButton(object obj) => Output = ResetCalculator();
         private void CEButton(object obj) => Output = GetAction("CE");
         private void NegativeButton(object obj) => Output = GetAction("+/-");

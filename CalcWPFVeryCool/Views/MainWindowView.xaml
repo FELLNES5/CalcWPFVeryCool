@@ -38,7 +38,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button Content="🕘" Margin="1" Grid.Column="4" BorderThickness="0" Background="LightGray" Command="{Binding HistoryToggleCommand}" Width="30" Height="30"/>
+            <Button Content="🕘" FontSize="20" Margin="1" Grid.Column="4" BorderThickness="0" Background="LightGray" Command="{Binding HistoryToggleCommand}" Width="30" Height="30"/>
         </Grid>
         <!--Текстовые элементы для вывода-->
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="2">
@@ -135,12 +135,12 @@
                 <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.RowSpan="2" Opacity="0.5" Background="Gray">
+            <Grid Grid.Row="0" Grid.RowSpan="3" Opacity="0.5" Background="Gray" Panel.ZIndex="1">
                 <Grid.InputBindings>
                     <MouseBinding Gesture="LeftClick" Command="{Binding HistoryToggleCommand}"/>
                 </Grid.InputBindings>
             </Grid>
-            <Grid Grid.Row="2" Grid.RowSpan="5">
+            <Grid Grid.Row="2" Grid.RowSpan="5" Panel.ZIndex="2">
                 <ListView ItemsSource="{Binding Model.HistoryItems}" ScrollViewer.CanContentScroll="True">
                     <ListView.ItemTemplate>
                         <!--DataTemplate - шаблон данных. Обращается только к свойствам объектов-->
