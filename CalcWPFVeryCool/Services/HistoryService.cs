@@ -14,8 +14,10 @@ namespace CalcWPFVeryCool.Services
         // Статическая переменная - ссылка на конкретный экземпляр данного объекта, реализация паттерна Singleton
         public static HistoryService Instance { get; } = new HistoryService();
         private List<HistoryItemDto> _historyItems = new List<HistoryItemDto>();
+        
         // Получение элементов истории
         public HistoryModel GetHistoryItems() => new HistoryModel { HistoryItems = _historyItems.OrderByDescending(p => p.Id).ToList() };
+        
         // Запись значений
         public void AddHistoryItem(HistoryItemDto item)
         {

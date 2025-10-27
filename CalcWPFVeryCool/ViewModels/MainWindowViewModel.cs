@@ -11,7 +11,7 @@ namespace CalcWPFVeryCool.ViewModels
     {
         private decimal _num1;
         private decimal _num2;
-        private char _operation = ' ';
+        private char _operation;
         private string _outputText = "0";
         private string _outputTextSecond;
         private bool _justCalculated = false;
@@ -45,6 +45,8 @@ namespace CalcWPFVeryCool.ViewModels
             DotButtonCommand = new RelayCommand(DotButton);
 
             HistoryToggleCommand = new RelayCommand(HistoryToggle);
+
+            //RestoreFromHistoryCommand = new RelayCommand(RestoreFromHistory);
             #endregion
         }
 
@@ -73,38 +75,11 @@ namespace CalcWPFVeryCool.ViewModels
         public ICommand NegativeButtonCommand { get; }
         public ICommand DelButtonCommand { get; }
         public ICommand DotButtonCommand { get; }
+        public ICommand RestoreFromHistoryCommand { get; }
+        public ICommand HistoryToggleCommand { get; }
         #endregion
 
-        public ICommand HistoryToggleCommand { get; }
-
-        // Получение цифр
-        private string GetNumber(string Val)
-        {
-            // Ввод цифр
-            if (_justCalculated)
-            {
-                ResetCalculator();
-                return Val;
-            }
-            if (Output == "0" || (_isSecondNumber && Output == _num1.ToString()))
-            {
-                return Val;
-            }
-            return Output + Val;           
-        }
-
-        // Метод сброса
-        private string ResetCalculator()
-        {
-            _num1 = 0;
-            _num2 = 0;
-            _operation = ' ';
-            _justCalculated = false;
-            _isSecondNumber = false;
-            SecondOutput = string.Empty;
-            return "0";
-        }
-        
+        #region Masks
         // Главное окно вывода
         public string Output
         {
@@ -154,8 +129,36 @@ namespace CalcWPFVeryCool.ViewModels
                 }
             }
         }
+        #endregion
 
-        #region MathOperations
+        #region CalculatorLogic
+        // Получение цифр
+        private string GetNumber(decimal Val)
+        {
+            // Ввод цифр
+            if (_justCalculated)
+            {
+                ResetCalculator();
+                return $"{Val}";
+            }
+            if (Output == "0" || (_isSecondNumber && Output == _num1.ToString()))
+            {
+                return $"{Val}";
+            }
+            return $"{Output}{Val}";
+        }
+
+        // Метод сброса
+        private string ResetCalculator()
+        {
+            _num1 = 0;
+            _num2 = 0;
+            _operation = ' ';
+            _justCalculated = false;
+            _isSecondNumber = false;
+            SecondOutput = string.Empty;
+            return "0";
+        }
 
         // Ввод операции
         public string SetOperation(string operation)
@@ -184,13 +187,13 @@ namespace CalcWPFVeryCool.ViewModels
             switch (_operation)
             {
                 case '+':
-                    _num1 = _num1 + _num2;
+                    _num1 += + _num2;
                     break;
                 case '-':
-                    _num1 = _num1 - _num2;
+                    _num1 -= _num2;
                     break;
                 case '*':
-                    _num1 = _num1 * _num2;
+                    _num1 *= _num2;
                     break;
                 case '/':
                     if (_num2 == 0)
@@ -200,7 +203,7 @@ namespace CalcWPFVeryCool.ViewModels
                         _isSecondNumber = false;
                         return Output;
                     }
-                    _num1 = _num1 / _num2;
+                    _num1 /= _num2;
                     break;
             }
 
@@ -222,7 +225,7 @@ namespace CalcWPFVeryCool.ViewModels
             if (Output.Contains('.')) return Output;
             return Output + ".";
         }
-        private string ClearElement()
+        private static string ClearElement()
         {
             return "0";
         }
@@ -246,19 +249,24 @@ namespace CalcWPFVeryCool.ViewModels
             return s.Substring(0, s.Length - 1);
         }
 
+        //private void RestoreFromHistory(HistoryItemDto item)
+        //{
+
+        //}
+
         #endregion
 
         #region UIEvents
-        private void ZeroButton(object obj) => Output = GetNumber("0");
-        private void OneButton(object obj) => Output = GetNumber("1");
-        private void TwoButton(object obj) => Output = GetNumber("2");
-        private void ThreeButton(object obj) => Output = GetNumber("3");
-        private void FourButton(object obj) => Output = GetNumber("4");
-        private void FiveButton(object obj) => Output = GetNumber("5");
-        private void SixButton(object obj) => Output = GetNumber("6");
-        private void SevenButton(object obj) => Output = GetNumber("7");
-        private void EightButton(object obj) => Output = GetNumber("8");
-        private void NineButton(object obj) => Output = GetNumber("9");
+        private void ZeroButton(object obj) => Output = GetNumber(0);
+        private void OneButton(object obj) => Output = GetNumber(1);
+        private void TwoButton(object obj) => Output = GetNumber(2);
+        private void ThreeButton(object obj) => Output = GetNumber(3);
+        private void FourButton(object obj) => Output = GetNumber(4);
+        private void FiveButton(object obj) => Output = GetNumber(5);
+        private void SixButton(object obj) => Output = GetNumber(6);
+        private void SevenButton(object obj) => Output = GetNumber(7);
+        private void EightButton(object obj) => Output = GetNumber(8);
+        private void NineButton(object obj) => Output = GetNumber(9);
         private void PlusButton(object obj) => Output = SetOperation("+");
         private void MinusButton(object obj) => Output = SetOperation("-");
         private void MultiplyButton(object obj) => Output = SetOperation("*");
